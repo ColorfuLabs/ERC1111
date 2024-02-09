@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 
 contract DAN is ERC1111, IERC2981, Ownable{
     using Strings for uint256;
@@ -17,20 +18,24 @@ contract DAN is ERC1111, IERC2981, Ownable{
 
     address private _royaltyRecipient;
 
-    // // metadata URI
+    // metadata URI
     string private _baseTokenURI;
+
+    mapping(address => bool) public isFairLaunch;
+
+    // uint256 startTimestamp = 1707534671; // 2024-02-10 11:11:11
+    uint256 startTimestamp = 0; // TODO test only
 
 
     constructor(
     ) ERC1111("pfpasia", "pfpasia", 18) {
-        _mintFT(msg.sender, 5000 * 10000 * 10**18);
+
     }
 
     function setMerkleRoot(bytes32 _merkleRoot) public onlyOwner {
         merkleRoot = _merkleRoot;
     }
     
-
     function claim(uint256 _amount, bytes32[] calldata _proof) external {
         address _account = msg.sender;
         require(!withdrawn[_account], "withdrawned token.");
@@ -65,6 +70,18 @@ contract DAN is ERC1111, IERC2981, Ownable{
 
     function setBaseURI(string calldata baseURI) external onlyOwner {
         _baseTokenURI = baseURI;
+    }
+
+    function fairLaunch() external{
+        require(block.timestamp >= startTimestamp, "not start");
+        require(!Address.isContract(msg.sender), "contract");
+        require(!isFairLaunch[msg.sender],"claimed");
+        require(totalSupply() + 10000 * 10**18 <= 5000 * 10000 * 10**18, "exceed");
+
+        _mintFT(msg.sender, 10000 * 10**18);
+
+        isFairLaunch[msg.sender] = true;
+
     }
 
     function tokenURI(uint256 tokenId)
