@@ -1,0 +1,10 @@
+__pycache__
+.env
+.history
+.hypothesis/
+build/
+reports/
+scripts/
+.DS_Store
+metadata/
+brownie-config.yaml
