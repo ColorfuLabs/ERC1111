@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 contract DAN is ERC1111, IERC2981, Ownable{
     using Strings for uint256;
@@ -26,13 +27,17 @@ contract DAN is ERC1111, IERC2981, Ownable{
     // uint256 startTimestamp = 1707534671; // 2024-02-10 11:11:11
     uint256 startTimestamp = 0; // TODO test only
 
-
     uint256 mintedFairLaunch;
+
+    mapping(bytes32 => bool) public evidenceUsed;
+    address public signer;
 
     
 
     constructor(
+        address _signer
     ) ERC1111("PFPAsia", "PFPAsia", 18) {
+        signer = _signer;
          
         _mintFT(msg.sender, 278 * 10000 * 10**18); // team reamins 5.555%
     }
@@ -80,17 +85,36 @@ contract DAN is ERC1111, IERC2981, Ownable{
         _baseTokenURI = baseURI;
     }
 
-    function fairLaunch() external{
+    function fairLaunch(
+        bytes memory evidence
+    ) external{
         require(block.timestamp >= startTimestamp, "not start");
         require(!Address.isContract(msg.sender), "contract");
         require(!isFairLaunch[msg.sender],"claimed");
         require(mintedFairLaunch + 10000 * 10**18 <= 5000 * 10000 * 10**18, "exceed");
+
+        
+        require(
+            !evidenceUsed[keccak256(evidence)] &&
+                ECDSA.recover(ECDSA.toEthSignedMessageHash(keccak256(
+                        abi.encodePacked(
+                            msg.sender,
+                            block.chainid
+                        )
+                    )), evidence) == signer,
+            "invalid evidence"
+        );
+        evidenceUsed[keccak256(evidence)] = true;
 
         _mintFT(msg.sender, 10000 * 10**18);
         mintedFairLaunch += 10000 * 10**18;
 
         isFairLaunch[msg.sender] = true;
 
+    }
+
+    function setSigner(address _signer) public onlyOwner {
+        signer = _signer;
     }
 
     function tokenURI(uint256 tokenId)
