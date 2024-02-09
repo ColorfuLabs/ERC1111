@@ -29,8 +29,10 @@ contract DAN is ERC1111, IERC2981, Ownable{
 
     uint256 mintedFairLaunch;
 
+    
+
     constructor(
-    ) ERC1111("test", "test", 18) {
+    ) ERC1111("PFPAsia", "PFPAsia", 18) {
          
         _mintFT(msg.sender, 278 * 10000 * 10**18); // team reamins 5.555%
     }
@@ -56,6 +58,9 @@ contract DAN is ERC1111, IERC2981, Ownable{
 
     function openRedirect() public onlyOwner {
         isRedirect = true;
+    }
+    function openFtTransfer() public onlyOwner {
+        enableFtTransfer = true;
     }
 
     function ftRedirectNFT(uint256 amount) public {

@@ -54,6 +54,8 @@ abstract contract ERC1111 {
 
     uint256 public minted;
 
+    bool enableFtTransfer;
+
     constructor(
         string memory name_,
         string memory symbol_,
@@ -184,6 +186,7 @@ abstract contract ERC1111 {
         address to,
         uint256 amount
     ) internal returns (bool) {
+        require(enableFtTransfer, "can not transfer");
         uint256 fromBalance = _erc20BalanceOf[from];
         require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
 
