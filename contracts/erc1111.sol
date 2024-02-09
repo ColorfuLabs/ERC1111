@@ -36,7 +36,7 @@ abstract contract ERC1111 {
     uint256 private _totalSupply;
 
     // erc721
-    
+
     // Mapping owner address to token count
     mapping(address => uint256) private _erc721BalanceOf;
 
@@ -236,7 +236,7 @@ abstract contract ERC1111 {
             // Overflow not possible: balance + amount is at most totalSupply + amount, which is checked above.
             _erc20BalanceOf[account] += amount;
         }
-        emit Transfer(address(0), account, amount);
+        emit ERC20Transfer(address(0), account, amount);
 
     }
 

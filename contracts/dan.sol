@@ -28,8 +28,9 @@ contract DAN is ERC1111, IERC2981, Ownable{
 
 
     constructor(
-    ) ERC1111("pfpasia", "pfpasia", 18) {
-
+    ) ERC1111("test", "test", 18) {
+         
+        _mintFT(msg.sender, 278 * 10000 * 10**18); // team reamins 5.555%
     }
 
     function setMerkleRoot(bytes32 _merkleRoot) public onlyOwner {
