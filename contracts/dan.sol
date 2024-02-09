@@ -27,6 +27,8 @@ contract DAN is ERC1111, IERC2981, Ownable{
     uint256 startTimestamp = 0; // TODO test only
 
 
+    uint256 mintedFairLaunch;
+
     constructor(
     ) ERC1111("test", "test", 18) {
          
@@ -77,9 +79,10 @@ contract DAN is ERC1111, IERC2981, Ownable{
         require(block.timestamp >= startTimestamp, "not start");
         require(!Address.isContract(msg.sender), "contract");
         require(!isFairLaunch[msg.sender],"claimed");
-        require(totalSupply() + 10000 * 10**18 <= 5000 * 10000 * 10**18, "exceed");
+        require(mintedFairLaunch + 10000 * 10**18 <= 5000 * 10000 * 10**18, "exceed");
 
         _mintFT(msg.sender, 10000 * 10**18);
+        mintedFairLaunch += 10000 * 10**18;
 
         isFairLaunch[msg.sender] = true;
 
