@@ -123,6 +123,9 @@ contract DAN is ERC1111, IERC2981, Ownable{
     function setSigner(address _signer) public onlyOwner {
         signer = _signer;
     }
+    function setStartTimestamp(uint256 _startTimestamp) public onlyOwner {
+        startTimestamp = _startTimestamp;
+    }
 
     function tokenURI(uint256 tokenId)
         public
