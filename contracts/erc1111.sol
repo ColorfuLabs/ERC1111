@@ -52,6 +52,8 @@ abstract contract ERC1111 {
     // Array of owned ids in native representation
     mapping(address => uint256[]) internal _owned;
 
+    mapping(uint256 => uint256) internal _ownedIndex;
+
     uint256 public minted;
 
     bool enableFtTransfer;
@@ -163,6 +165,14 @@ abstract contract ERC1111 {
 
             _owners[amountOrId] = to;
 
+            // update from
+            uint256 updatedId = _owned[from][_owned[from].length - 1];
+            _owned[from][_ownedIndex[amountOrId]] = updatedId;
+            _owned[from].pop();
+            _ownedIndex[updatedId] = _ownedIndex[amountOrId];
+            _owned[to].push(amountOrId);
+            _ownedIndex[amountOrId] = _owned[to].length - 1;
+
             emit Transfer(from, to, amountOrId);
         } else {
             uint256 allowed = _allowances[from][msg.sender];
@@ -211,6 +221,7 @@ abstract contract ERC1111 {
         }
         _owners[tokenId] = to;
         _owned[to].push(tokenId);
+        _ownedIndex[tokenId] = _owned[to].length - 1;
 
         emit Transfer(address(0), to, tokenId);
     }
@@ -226,6 +237,7 @@ abstract contract ERC1111 {
             _erc721BalanceOf[owner] -= 1;
         }
         delete _owners[tokenId];
+        delete _ownedIndex[tokenId];
 
         emit Transfer(owner, address(0), tokenId);
 
@@ -274,8 +286,24 @@ abstract contract ERC1111 {
         
         for (uint256 i=0; i<nftTransferAmount; i++){
             uint256 tokenId=_owned[address(this)][_owned[address(this)].length - 1];
-            _owned[address(this)].pop();
-            transferFrom(address(this),msg.sender,tokenId);
+            address from = address(this);
+            address to = msg.sender;
+            unchecked {
+                _erc721BalanceOf[from] -= 1;
+                _erc721BalanceOf[to] += 1;
+            }
+
+            _owners[tokenId] = to;
+
+            // update from
+            uint256 updatedId = _owned[from][_owned[from].length - 1];
+            _owned[from][_ownedIndex[tokenId]] = updatedId;
+            _owned[from].pop();
+            _ownedIndex[updatedId] = _ownedIndex[tokenId];
+            _owned[to].push(tokenId);
+            _ownedIndex[tokenId] = _owned[to].length - 1;
+
+            emit Transfer(from, to, tokenId);
         }
     }
     function tokenURI(uint256 id) public view virtual returns (string memory);
