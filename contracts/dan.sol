@@ -24,8 +24,7 @@ contract DAN is ERC1111, IERC2981, Ownable{
 
     mapping(address => bool) public isFairLaunch;
 
-    // uint256 startTimestamp = 1707534671; // 2024-02-10 11:11:11
-    uint256 startTimestamp = 0; // TODO test only
+    uint256 startTimestamp = 1707534671; // 2024-02-10 11:11:11
 
     uint256 mintedFairLaunch;
 
@@ -64,8 +63,16 @@ contract DAN is ERC1111, IERC2981, Ownable{
     function openRedirect() public onlyOwner {
         isRedirect = true;
     }
+
+    function closeRedirect() public onlyOwner {
+        isRedirect = false;
+    }
     function openFtTransfer() public onlyOwner {
         enableFtTransfer = true;
+    }
+    
+    function closeFtTransfer() public onlyOwner {
+        enableFtTransfer = false;
     }
 
     function ftRedirectNFT(uint256 amount) public {
